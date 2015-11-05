@@ -1,12 +1,20 @@
 <?php
 
-class CRM_Tokens_ActivitySourceContactTokens {
+class CRM_Tokens_TechnischWoonconsulentTokens {
 
-  protected $token_name = 'activity_source_contact';
+  protected $token_name = 'technisch_woonconsulent';
 
-  protected $token_label = 'Activity source contact';
+  protected $token_label = 'Technisch woonconsulent';
 
   protected $source_contact_ids = array();
+
+  protected static $technisch_woonconsulent_rel_type_id = false;
+
+  public function __construct() {
+    if (!self::$technisch_woonconsulent_rel_type_id) {
+      self::$technisch_woonconsulent_rel_type_id = civicrm_api3('RelationshipType', 'getvalue', array('return' => 'id', 'name_a_b' => 'Technisch woonconsulent'));
+    }
+  }
 
   public function tokens(&$tokens) {
     $t = array();
@@ -124,13 +132,24 @@ class CRM_Tokens_ActivitySourceContactTokens {
     } else {
       $value = $values;
     }
-
     if (!isset($value['activity.activity_id'])) {
       return false;
     }
     $aid = $value['activity.activity_id'];
     if (!isset($this->source_contact_ids[$aid])) {
-      $this->source_contact_ids[$aid] = civicrm_api3('Activity', 'getvalue', array('return' => 'source_contact_id', 'id' => $aid));
+      $this->source_contact_ids[$aid] = false;
+      $case_id = CRM_Core_DAO::singleValueQuery("SELECT case_id FROM civicrm_case_activity WHERE activity_id = %1", array( 1 => array($aid, 'Integer')));
+      try {
+        $contact_id = civicrm_api3('Relationship', 'getvalue', array(
+          'return' => 'contact_id_b',
+          'relationship_type_id' => self::$technisch_woonconsulent_rel_type_id,
+          'case_id' => $case_id
+        ));
+        $this->source_contact_ids[$aid] = $contact_id;
+      } catch (Exception $e) {
+        return false;
+      }
+
     }
     return $this->source_contact_ids[$aid];
   }

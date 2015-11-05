@@ -6,13 +6,18 @@ function tokens_civicrm_tokens(&$tokens) {
   //activity source tokens
   $activity_source_tokens = new CRM_Tokens_ActivitySourceContactTokens();
   $activity_source_tokens->tokens($tokens);
+
+  $technisch_woonconsulent_tokens = new CRM_Tokens_TechnischWoonconsulentTokens();
+  $technisch_woonconsulent_tokens->tokens($tokens);
 }
 
 
 function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
-  //activity source tokens
   $activity_source_tokens = new CRM_Tokens_ActivitySourceContactTokens();
   $activity_source_tokens->tokenValues($values, $cids, $job, $tokens, $context);
+
+  $technisch_woonconsulent_tokens = new CRM_Tokens_TechnischWoonconsulentTokens();
+  $technisch_woonconsulent_tokens->tokenValues($values, $cids, $job, $tokens, $context);
 }
 
 /**
